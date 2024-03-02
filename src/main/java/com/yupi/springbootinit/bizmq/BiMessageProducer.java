@@ -14,10 +14,10 @@ public class BiMessageProducer {
     private static final String BI_EXCHANGE = "bi_exchange";
     private static final String ROUTING_KEY = "bi_routingKey";
     /**
-     * @param chartId 具体发送的消息,图表的 id
+     * @param chartAndUserId 具体发送的消息,图表的 id 和 用户 id
      */
-    public void sendChartId(Long chartId) {
+    public void sendChartId(String chartAndUserId) {
         // 外部做参数校验
-        rabbitTemplate.convertAndSend(BI_EXCHANGE, ROUTING_KEY, chartId.toString());
+        rabbitTemplate.convertAndSend(BI_EXCHANGE, ROUTING_KEY, chartAndUserId.toString());
     }
 }

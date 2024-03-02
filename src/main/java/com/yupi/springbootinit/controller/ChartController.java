@@ -1,15 +1,18 @@
 package com.yupi.springbootinit.controller;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.util.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fang.fangapicommon.model.dto.ChartQueryRequest;
 import com.fang.fangapicommon.model.entity.Chart;
 import com.fang.fangapicommon.model.entity.User;
+import com.google.gson.Gson;
 import com.yupi.springbootinit.annotation.AuthCheck;
 import com.yupi.springbootinit.bizmq.BiMessageProducer;
 import com.yupi.springbootinit.common.BaseResponse;
@@ -30,6 +33,7 @@ import com.yupi.springbootinit.service.UserService;
 import com.yupi.springbootinit.utils.ExcelUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,6 +66,9 @@ public class ChartController {
 
     @Resource
     private BiMessageProducer biMessageProducer;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @PostMapping("/gen")
     public BaseResponse<BiResponse> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
@@ -283,6 +290,10 @@ public class ChartController {
         ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.PARAMS_ERROR, "文件后缀非法");
         String csvData = ExcelUtils.excelToCsv(multipartFile);
         // 插入到数据库
+        Set<String> keys = stringRedisTemplate.keys("MyChart:" + userId + "*");
+        if(!keys.isEmpty()) {
+            stringRedisTemplate.delete(keys);
+        }
         Chart chart = new Chart();
         chart.setName(name);
         chart.setGoal(goal);
@@ -290,15 +301,15 @@ public class ChartController {
         chart.setChartType(chartType);
         chart.setUserId(userId);
         // 将图表的状态设置成等待中
-        chart.setStatus(ChartStatusEnum.WAIT.getStatus());
-        chart.setExecMessage(ChartStatusEnum.WAIT.getExecMessage());
+        chart.setStatus(ChartStatusEnum.RUNNING.getStatus());
+        chart.setExecMessage(ChartStatusEnum.RUNNING.getExecMessage());
         boolean saveResult = chartService.save(chart);
         ThrowUtils.throwIf(!saveResult,ErrorCode.SYSTEM_ERROR, "图表保存失败");
         long newChartId = chart.getId();
-        biMessageProducer.sendChartId(newChartId);
+        biMessageProducer.sendChartId(newChartId + ":" + userId);
         // 将生成的结果返回给前端
-        // 查询数据库，将
-        Chart newChart = chartService.getById(newChartId);
+        // 删除之前缓存的图表数据
+
         BiResponse biResponse = new BiResponse();
         biResponse.setChartId(chart.getId());
         return biResponse;
@@ -453,6 +464,7 @@ public class ChartController {
         if (chartQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+
         User loginUser = userService.getLoginUser(request);
         chartQueryRequest.setUserId(loginUser.getId());
         long current = chartQueryRequest.getCurrent();
@@ -461,6 +473,8 @@ public class ChartController {
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         Page<Chart> chartPage = chartService.page(new Page<>(current, size),
                 chartService.getQueryWrapper(chartQueryRequest));
+
+        stringRedisTemplate.opsForValue().set("MyChart:" + chartQueryRequest, JSONUtil.toJsonStr(chartPage));
         return ResultUtils.success(chartPage);
     }
 

@@ -15,10 +15,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Set;
 
 @Component
 // 使用@Slf4j注解生成日志记录器
@@ -30,6 +32,9 @@ public class BiMessageConsumer {
 
     @Resource
     private AiManager aiManager;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     // @SneakThrows 注解简化异常处理，
     // 底层实际上是给需要抛出检查型异常的方法加上了 try-catch，使用这个注解可以让代码更加简洁
@@ -45,7 +50,14 @@ public class BiMessageConsumer {
             // 如果消息为空或者不是数字，就直接拒绝消息，同时不重试消息
             channel.basicNack(deliveryTag, false, false);
         }
-        long chartId = Long.parseLong(message);
+
+        String[] data = message.split(":");
+        long chartId = Long.parseLong(data[0]);
+        long userId = Long.parseLong(data[1]);
+        Set<String> keys = stringRedisTemplate.keys("MyChart:" + userId + "*");
+        if(!keys.isEmpty()) {
+            stringRedisTemplate.delete(keys);
+        }
         Chart chart = chartService.getById(chartId);
         if (chart == null) {
             // 如果图表为空，拒绝消息并抛出业务异常
@@ -76,6 +88,10 @@ public class BiMessageConsumer {
         updateChart.setGenChart(genChart);
         updateChart.setGenResult(genResult);
         // 更新图表生成成功的状态
+        keys = stringRedisTemplate.keys("MyChart:" + userId + "*");
+        if(!keys.isEmpty()) {
+            stringRedisTemplate.delete(keys);
+        }
         updateChart.setStatus(ChartStatusEnum.SUCCEED.getStatus());
         updateChart.setExecMessage(ChartStatusEnum.SUCCEED.getExecMessage());
         boolean updateResult = chartService.updateById(updateChart);

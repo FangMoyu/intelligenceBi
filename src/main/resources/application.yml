@@ -112,8 +112,8 @@ knife4j:
           - com.yupi.springbootinit.controller
 yuapi:
   client:
-    access-key: ad8w9dl0vbzap24nn9qit7mpuw371c9w
-    secret-key: bo8ozsfitfk79nlbzzr86wqoef5k2gzy
+    access-key: 2aqxak5bdmcq5chjtt9817o73d9qh9ol
+    secret-key: queq3sk1lwudu98mekuf4s0novkaf896
 
 # 以下配置指定了应用的名称、使用的协议（Dubbo）、注册中心的类型（Nacos）和地址
 dubbo:
@@ -128,3 +128,5 @@ dubbo:
     # 配置注册中心为 Nacos，使用的地址是 nacos://localhost:8848
     id: nacos-registry
     address: nacos://localhost:8848
+  service:
+    timeout: 100000

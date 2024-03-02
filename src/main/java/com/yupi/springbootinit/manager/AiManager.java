@@ -31,6 +31,9 @@ public class AiManager {
         if(response == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"AI 响应错误");
         }
+        if(response.getCode() != 0) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"AI 响应错误");
+        }
         // 返回结果
         return response.getData().getContent();
     }
