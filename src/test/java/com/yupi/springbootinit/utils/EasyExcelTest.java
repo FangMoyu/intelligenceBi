@@ -5,7 +5,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.fang.fangapicommon.model.entity.User;
 import com.google.gson.Gson;
 
 import org.junit.jupiter.api.Test;

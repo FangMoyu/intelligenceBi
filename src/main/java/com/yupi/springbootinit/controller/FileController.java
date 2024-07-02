@@ -1,7 +1,6 @@
 package com.yupi.springbootinit.controller;
 
 import cn.hutool.core.io.FileUtil;
-import com.fang.fangapicommon.model.entity.User;
 import com.yupi.springbootinit.common.BaseResponse;
 import com.yupi.springbootinit.common.ErrorCode;
 import com.yupi.springbootinit.common.ResultUtils;
@@ -9,6 +8,7 @@ import com.yupi.springbootinit.constant.FileConstant;
 import com.yupi.springbootinit.exception.BusinessException;
 import com.yupi.springbootinit.manager.CosManager;
 import com.yupi.springbootinit.model.dto.file.UploadFileRequest;
+import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.model.enums.FileUploadBizEnum;
 import com.yupi.springbootinit.service.UserService;
 import java.io.File;
@@ -22,13 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-/**
- * 文件接口
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
- */
 @RestController
 @RequestMapping("/file")
 @Slf4j

@@ -1,7 +1,8 @@
 package com.yupi.springbootinit.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fang.fangapicommon.model.entity.User;
+
+import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.annotation.AuthCheck;
 import com.yupi.springbootinit.common.BaseResponse;
 import com.yupi.springbootinit.common.DeleteRequest;
@@ -55,7 +56,6 @@ public class UserController {
     private WxOpenConfig wxOpenConfig;
 
     // region 登录相关
-
     /**
      * 用户注册
      *

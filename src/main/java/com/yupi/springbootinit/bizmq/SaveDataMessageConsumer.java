@@ -5,7 +5,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.util.StringUtils;
-import com.fang.fangapicommon.model.entity.Chart;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.rabbitmq.client.Channel;

@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.fang.fangapicommon.model.entity.User;
 import com.yupi.springbootinit.model.entity.Post;
 import com.yupi.springbootinit.model.entity.PostFavour;
+import com.yupi.springbootinit.model.entity.User;
 
 /**
  * 帖子收藏服务

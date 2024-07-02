@@ -9,10 +9,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.util.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fang.fangapicommon.model.dto.ChartQueryRequest;
-import com.fang.fangapicommon.model.entity.Chart;
-import com.fang.fangapicommon.model.entity.User;
-import com.google.gson.Gson;
+
 import com.yupi.springbootinit.annotation.AuthCheck;
 import com.yupi.springbootinit.bizmq.BiMessageProducer;
 import com.yupi.springbootinit.common.BaseResponse;
@@ -25,6 +22,8 @@ import com.yupi.springbootinit.exception.ThrowUtils;
 import com.yupi.springbootinit.manager.AiManager;
 import com.yupi.springbootinit.manager.RedisLimiterManager;
 import com.yupi.springbootinit.model.dto.chart.*;
+import com.yupi.springbootinit.model.entity.Chart;
+import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.model.enums.AiModelIdEnum;
 import com.yupi.springbootinit.model.enums.ChartStatusEnum;
 import com.yupi.springbootinit.model.vo.BiResponse;
@@ -36,7 +35,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -93,7 +91,6 @@ public class ChartController {
         User loginUser = userService.getLoginUser(request);
         // 限流判断，每个用户一个限流器
         redisLimiterManager.doRateLimit("genChartByAi_" + loginUser.getId());
-        // 无需写 prompt，直接调用现有模型，https://www.yucongming.com，公众号搜【鱼聪明AI】
 //        final String prompt = "你是一个数据分析师和前端开发专家，接下来我会按照以下固定格式给你提供内容：\n" +
 //                "分析需求：\n" +
 //                "{数据分析的需求或者目标}\n" +
@@ -143,6 +140,7 @@ public class ChartController {
         chart.setGenChart(genChart);
         chart.setGenResult(genResult);
         chart.setUserId(loginUser.getId());
+        chart.setStatus(ChartStatusEnum.SUCCEED.getStatus());
         boolean saveResult = chartService.save(chart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
         BiResponse biResponse = new BiResponse();
@@ -257,9 +255,10 @@ public class ChartController {
 
 
     @PostMapping("/gen/async/mq")
-    public BiResponse genChartByAiAsyncUsingMQ(@RequestPart("file") MultipartFile multipartFile,
-                                                      GenChartByAiRequest genChartByAiRequest) {
-        long userId = genChartByAiRequest.getUserId();
+    public BaseResponse<BiResponse> genChartByAiAsyncUsingMQ(@RequestPart("file") MultipartFile multipartFile,
+                                                             GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) {
+
+        long userId = userService.getLoginUser(request).getId();
         if(userId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -309,10 +308,9 @@ public class ChartController {
         biMessageProducer.sendChartId(newChartId + ":" + userId);
         // 将生成的结果返回给前端
         // 删除之前缓存的图表数据
-
         BiResponse biResponse = new BiResponse();
         biResponse.setChartId(chart.getId());
-        return biResponse;
+        return ResultUtils.success(biResponse);
     }
 
 

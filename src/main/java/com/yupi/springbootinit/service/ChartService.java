@@ -2,8 +2,9 @@ package com.yupi.springbootinit.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.fang.fangapicommon.model.dto.ChartQueryRequest;
-import com.fang.fangapicommon.model.entity.Chart;
+
+import com.yupi.springbootinit.model.dto.chart.ChartQueryRequest;
+import com.yupi.springbootinit.model.entity.Chart;
 
 /**
  *

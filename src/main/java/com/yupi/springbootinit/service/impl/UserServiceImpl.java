@@ -5,7 +5,8 @@ import static com.yupi.springbootinit.constant.UserConstant.USER_LOGIN_STATE;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fang.fangapicommon.model.entity.User;
+
+import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.common.ErrorCode;
 import com.yupi.springbootinit.constant.CommonConstant;
 import com.yupi.springbootinit.exception.BusinessException;
@@ -116,7 +117,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public User getLoginUser(HttpServletRequest request) {
+    public com.yupi.springbootinit.model.entity.User getLoginUser(HttpServletRequest request) {
         // 先判断是否已登录
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User currentUser = (User) userObj;

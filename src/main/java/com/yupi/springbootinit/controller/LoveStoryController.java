@@ -1,20 +1,20 @@
 package com.yupi.springbootinit.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.yupi.springbootinit.common.ErrorCode;
-import com.yupi.springbootinit.common.ResultUtils;
 import com.yupi.springbootinit.exception.BusinessException;
 import com.yupi.springbootinit.model.entity.LoveStory;
 import com.yupi.springbootinit.model.vo.LoveStoryVO;
 import com.yupi.springbootinit.service.LoveStoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @Slf4j
@@ -26,7 +26,11 @@ public class LoveStoryController {
 
     @PostMapping("/random/gen")
     @Transactional(rollbackFor = Exception.class)
-    public LoveStoryVO getRandomLoveStory() {
+    public LoveStoryVO getRandomLoveStory(HttpServletRequest request) {
+        String source = request.getHeader("source");
+        if(StrUtil.isBlank(source) || !source.equals("byGateway")) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求异常");
+        }
         long count = loveStoryService.count();
         if(count <= 0) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "没有数据");

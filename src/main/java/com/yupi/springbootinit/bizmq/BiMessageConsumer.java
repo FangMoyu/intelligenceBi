@@ -2,12 +2,12 @@ package com.yupi.springbootinit.bizmq;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.util.StringUtils;
-import com.fang.fangapicommon.model.entity.Chart;
 import com.rabbitmq.client.Channel;
 import com.yupi.springbootinit.common.ErrorCode;
 import com.yupi.springbootinit.exception.BusinessException;
 import com.yupi.springbootinit.exception.ThrowUtils;
 import com.yupi.springbootinit.manager.AiManager;
+import com.yupi.springbootinit.model.entity.Chart;
 import com.yupi.springbootinit.model.enums.AiModelIdEnum;
 import com.yupi.springbootinit.model.enums.ChartStatusEnum;
 import com.yupi.springbootinit.service.ChartService;
@@ -36,7 +36,7 @@ public class BiMessageConsumer {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    // @SneakThrows 注解简化异常处理，
+    // @SneakThrows 注解简化异常处理
     // 底层实际上是给需要抛出检查型异常的方法加上了 try-catch，使用这个注解可以让代码更加简洁
     @SneakyThrows
     // rabbitMQ 消息监听注解，可以用来接收消息
